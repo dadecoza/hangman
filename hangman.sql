@@ -55,6 +55,7 @@ CREATE TABLE `players` (
 
 LOCK TABLES `players` WRITE;
 /*!40000 ALTER TABLE `players` DISABLE KEYS */;
+INSERT INTO `players` VALUES ('dadecoza',0,0,'','THAN',1653479959);
 /*!40000 ALTER TABLE `players` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -81,6 +82,94 @@ INSERT INTO `words` VALUES ('ability'),('able'),('about'),('above'),('accept'),(
 UNLOCK TABLES;
 
 --
+-- Dumping routines for database 'hangman'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `sp_play` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`hangman`@`localhost` PROCEDURE `sp_play`(
+    IN p_username varchar(50),
+    IN p_guess CHAR,
+    OUT p_mask VARCHAR(50),
+    OUT p_guessed VARCHAR(50),
+    OUT p_state VARCHAR(50),
+    OUT p_ic INT,
+    OUT p_word VARCHAR(50)
+    )
+BEGIN
+    DECLARE v_exists INT DEFAULT 0;
+    DECLARE v_word VARCHAR(50);
+    DECLARE v_guesses VARCHAR(50) DEFAULT '';
+    DECLARE v_mask VARCHAR(50) DEFAULT '';
+    DECLARE v_word_len INT;
+    DECLARE v_guess_len INT;
+    DECLARE v_guess_letter CHAR;
+    DECLARE v_word_letter CHAR;
+    DECLARE v_word_index INT DEFAULT 0;
+    DECLARE v_guess_index INT DEFAULT 0;
+    DECLARE v_random_word VARCHAR(50);
+    DECLARE v_incorrect_count INT DEFAULT 0;
+    SELECT EXISTS(SELECT * FROM players WHERE username=p_username) into v_exists;
+    SELECT UPPER(word) INTO v_random_word FROM words ORDER BY RAND() LIMIT 1;
+    IF v_exists = 0 THEN
+        INSERT INTO players (username, word) values (p_username, v_random_word);
+    END IF;
+    SELECT word, coalesce(letters,'') INTO v_word, v_guesses FROM players WHERE username=p_username;
+    IF p_guess <> '*' AND LOCATE(upper(p_guess), v_guesses) = 0 THEN
+        SET v_guesses = upper(CONCAT(v_guesses, p_guess));
+    END IF;
+    SET v_word_len = LENGTH(v_word);
+    SET v_guess_len = LENGTH(v_guesses);
+    WHILE v_word_index < v_word_len DO
+        SET v_mask = CONCAT(v_mask, '_');
+        SET v_word_index = v_word_index+1;
+    END WHILE;
+    SET v_mask = TRIM(v_mask);
+    WHILE v_guess_index < v_guess_len DO
+        SET v_guess_letter = SUBSTRING(v_guesses, v_guess_index+1, 1);
+        IF LOCATE(v_guess_letter, v_word) > 0 THEN
+            SET v_word_index = 0;
+            WHILE v_word_index < v_word_len DO
+                SET v_word_letter = SUBSTRING(v_word, v_word_index+1, 1);
+                IF v_guess_letter = v_word_letter THEN
+                    set v_mask = concat(left(v_mask, v_word_index), v_guess_letter, right(v_mask, v_word_len-(v_word_index+1)));
+                END IF;
+                SET v_word_index = v_word_index+1;
+            END WHILE;
+        ELSE
+            SET v_incorrect_count = v_incorrect_count + 1;
+        END IF;
+        SET v_guess_index = v_guess_index+1;
+    END WHILE;
+    IF v_incorrect_count > 6 THEN
+        UPDATE players SET letters = null, word = v_random_word, games = games+1, ts = UNIX_TIMESTAMP() WHERE username=p_username;
+        SET p_state = 'GAMEOVER';
+    ELSEIF LOCATE('_', v_mask) > 0 THEN
+        UPDATE players SET letters = v_guesses WHERE username=p_username;
+        SET p_state = 'INPROGRESS';
+    ELSE
+        UPDATE players SET letters = null, word = v_random_word, won = won+1, games = games+1, ts = UNIX_TIMESTAMP() WHERE username=p_username;
+        SET p_state = 'WON';
+    END IF;
+    SET p_mask = v_mask;
+    SET p_guessed = v_guesses;
+    SET p_ic = v_incorrect_count;
+    SET p_word = v_word;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
 -- Final view structure for view `hall_of_fame`
 --
 
@@ -93,6 +182,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8mb4 */;
 /*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`hangman`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `hall_of_fame` AS select `players`.`username` AS `username`,`players`.`games` AS `games`,`players`.`won` AS `won`,concat(cast(cast(`players`.`won` / `players`.`games` * 100 as signed) as char charset utf8mb4),'%') AS `ratio` from `players` order by `players`.`won` / `players`.`games` * 100 * `players`.`games` desc */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -107,4 +197,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-25 13:20:14
+-- Dump completed on 2022-05-25 14:58:31
