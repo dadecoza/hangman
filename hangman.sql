@@ -55,7 +55,7 @@ CREATE TABLE `players` (
 
 LOCK TABLES `players` WRITE;
 /*!40000 ALTER TABLE `players` DISABLE KEYS */;
-INSERT INTO `players` VALUES ('dadecoza',0,0,'','THAN',1653479959);
+INSERT INTO `players` VALUES ('dadecoza',7,2,NULL,'PM',1653496995);
 /*!40000 ALTER TABLE `players` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +183,7 @@ DELIMITER ;
 /*!50001 SET collation_connection      = utf8mb4_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`hangman`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `hall_of_fame` AS select `players`.`username` AS `username`,`players`.`games` AS `games`,`players`.`won` AS `won`,concat(cast(cast(`players`.`won` / `players`.`games` * 100 as signed) as char charset utf8mb4),'%') AS `ratio` from `players` order by `players`.`won` / `players`.`games` * 100 * `players`.`games` desc */;
+/*!50001 VIEW `hall_of_fame` AS select `players`.`username` AS `username`,`players`.`games` AS `games`,`players`.`won` AS `won`,concat(cast(cast(`players`.`won` / `players`.`games` * 100 as signed) as char charset utf8mb4),'%') AS `ratio` from `players` where `players`.`won` > 0 order by `players`.`won` / `players`.`games` * 100 * `players`.`games` desc */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -197,4 +197,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-25 14:58:31
+-- Dump completed on 2022-05-25 18:53:24
