@@ -1,6 +1,6 @@
 <?php
 $configs = include('config.php');
-$guess = isset($_GET["guess"]) ? $_GET["guess"] : "*";
+$guess = isset($_GET["guess"]) ? filter_var($_GET["guess"], FILTER_SANITIZE_STRING) : "*";
 $user = isset($_GET["user"]) ? filter_var($_GET["user"], FILTER_SANITIZE_STRING) : "";
 $hof = isset($_GET["hof"]) ? $_GET["hof"] : "";
 
@@ -158,7 +158,7 @@ function state_message() {
 
 function hall_of_fame() {
     global $configs, $hof, $state, $user;
-    if (($state !== "INPROGRESS")||($hof)) {
+   /* if (($state !== "INPROGRESS")||($hof)) {
         $conn = new mysqli($configs['servername'], $configs['username'], $configs['password'], $configs['database']);
         $sql = "SELECT username, games, won, ratio FROM hall_of_fame";
         $result = $conn->query($sql);
@@ -176,6 +176,6 @@ function hall_of_fame() {
         return $ret;
     } else {
         return "<a href='?hof=1&user=$user'>Hall of Fame</a>";
-    }
+    }*/
 }
 ?>

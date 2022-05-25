@@ -1,8 +1,8 @@
 <?php
 return array(
     'servername' => 'localhost',
-    'database' => 'hangman',
-    'username' => 'hangman',
-    'password' => 'hangm4n'
+    'database' => 'langebe2_hangman',
+    'username' => 'langebe2_hangman',
+    'password' => 'aB%2K[tBMVN='
 );
 ?>
