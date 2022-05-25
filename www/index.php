@@ -9,9 +9,8 @@ require('./game.php');
 <body bgcolor="#E5E7E9">
 <?php if ($user) { ?>
 <pre><?php echo hangman(); ?></pre>
-<?php echo state_message(); ?>
-<pre><?php echo mask(); ?>&nbsp;</pre>
-<pre><?php echo implode(",", str_split($guessed)) ?>&nbsp;</pre>
+<?php echo mask(); ?><br>
+<small><?php echo implode(",", str_split($guessed)) ?>&nbsp</small>
 <?php echo letter_picker(); ?>
 <?php echo hall_of_fame(); ?>
 <?php } else { ?>

@@ -129,7 +129,7 @@ function letter_picker() {
     global $state, $guessed, $user;
     $ret = ""; 
     if ($state === "INPROGRESS") {
-        $ret="<table border='0' cellpadding='5'><tr>";
+        $ret="<table border='0' cellpadding='3'><tr>";
         foreach (str_split("ABCDEFGHIJKLMNOPQRSTUVWXYZ") as $letter) {
             $letter_html = (strpos($guessed, $letter) !== false) ? "$letter" : "<a href='?user=$user&guess=$letter'>$letter</a>"; 
             $ret = $ret."<td>".$letter_html."</td>\n";
@@ -137,23 +137,12 @@ function letter_picker() {
                 $ret = $ret."</tr><tr>";
             }
         }
-        $ret = $ret."</tr></table><br>";
+        $ret = $ret."</tr></table>";
     } else {
-        $ret = "<p><a href='?user=$user'>New Game</a></p>";
+        $ret = "<p>".(($state === "GAMEOVER") ? "<font color='#FF0000'>Game Over</font>" : "<font color='#27AE60'>Winner!</font>")."</p>";
+        $ret .= "<p><a href='?user=$user'><small>New Game</small></a></p>";
     }
     return $ret;
-}
-
-function state_message() {
-    global $state;
-    switch ($state) {
-        case "GAMEOVER":
-            return "<p><font color='#FF0000'>Game Over</font></p>";
-        case "WON":
-            return "<p><font color='#27AE60'>Winner!</font></p>";
-        default:
-            return "&nbsp;";
-    }
 }
 
 function hall_of_fame() {
@@ -175,7 +164,7 @@ function hall_of_fame() {
         $conn -> close();
         return $ret;
     } else {
-        return "<a href='?hof=1&user=$user'>Hall of Fame</a>";
+        return "<p><a href='?hof=1&user=$user'>Hall of Fame</a></p>";
     }
 }
 ?>
