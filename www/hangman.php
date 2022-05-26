@@ -11,6 +11,9 @@ class Hangman {
             $db_password,
             $db_database
         );
+        if ($this->conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
     }
 
     function __destruct() {
@@ -75,11 +78,12 @@ class Hangman {
     }
 
     function get_hall_of_fame() {
-        $sql = "SELECT username, games, won, CONCAT(CAST(CAST(((won/games)*100) AS INT) AS CHAR), '%') as ratio FROM players WHERE won > 0 ORDER BY ((won/games)*100)*games desc";
+        $sql = "SELECT username, games, won FROM players WHERE won > 0 ORDER BY ((won/games)*100)*games desc";
         $result = $this->conn->query($sql);
         if ($result->num_rows > 0) {
             $rows = [];
             while($row = $result->fetch_assoc()) {
+                $row["ratio"] = intval(($row["won"]/$row["games"])*100)."%";
                 array_push($rows, $row);
             }
             return $rows;

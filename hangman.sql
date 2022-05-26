@@ -4,7 +4,8 @@ username varchar(50) primary key,
 games int default 0,
 won int default 0,
 letters varchar(26),
-word varchar(50)
+word varchar(50),
+ts int
 );
 
 DROP TABLE IF EXISTS `words`;
