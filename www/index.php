@@ -57,7 +57,7 @@ if ($user) {
         echo "<p><a href='?user=$user'><small>New Game</small></a></p>";
     }
     echo "<p>";
-    if ($hof) {
+    if (($hof)||($game->get_state() !== "INPROGRESS")) {
         $rows = $game->get_hall_of_fame();
         if ($rows) {
             $tbl = "<table border='1' cellpadding='5'>";
