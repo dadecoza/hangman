@@ -58,14 +58,16 @@ if ($user) {
         echo "<p><a href='?user=$user'><small>New Game</small></a></p>";
     }
     echo "<p>";
-    if (($hof)||($game->inprogress())) {
+    if (($hof)||(!$game->inprogress())) {
         $rows = $game->get_hall_of_fame();
         if ($rows) {
             $tbl = "<table border='1' cellpadding='5'>";
-            $tbl .= "<tr><th colspan='4'>Hall of Fame</th></tr>";
-            $tbl .= "<tr><th>Player</th><th>Games</th><th>Won</th><th>Ratio</th></tr>";
+            $tbl .= "<tr><th colspan='5'>Hall of Fame</th></tr>";
+            $tbl .= "<tr><th>Rank</th><th>Player</th><th>Games</th><th>Won</th><th>Ratio</th></tr>";
+            $rnk = 1;
             foreach ($rows as $row) {
-                $tbl .= "<tr><td>".$row["username"]."</td><td>".$row["games"]."</td><td>".$row["won"]."</td><td>".$row["ratio"]."</td></tr>";
+                $tbl .= "<tr><td>$rnk</td><td>".$row["username"]."</td><td>".$row["games"]."</td><td>".$row["won"]."</td><td>".$row["ratio"]."</td></tr>";
+                $rnk++;
             }
             $tbl .= "</table>";
             echo $tbl;
