@@ -29,7 +29,7 @@ if ($user) {
 <?php if ($user) { ?>
 <pre><?php echo $game->get_hangman(); ?></pre>
 <?php 
-    if ($game->get_state() === "INPROGRESS") {
+    if ($game->inprogress()) {
         echo implode(" ", str_split($game->get_mask()));
     } else {
         echo implode(" ", str_split($game->get_word()));
@@ -37,7 +37,7 @@ if ($user) {
 ?><br>
 <small><?php echo implode(",", str_split($game->get_guesses())) ?>&nbsp</small>
 <?php
-    if ($game->get_state() === "INPROGRESS") {
+    if ($game->inprogress()) {
         $tbl="<table border='0' cellpadding='3'><tr>";
         foreach (str_split("ABCDEFGHIJKLMNOPQRSTUVWXYZ") as $letter) {
             $letter_html = $game->is_letter_guessed($letter) ? "$letter" : "<a href='?user=$user&guess=$letter'>$letter</a>"; 
@@ -49,15 +49,16 @@ if ($user) {
         $tbl .= "</tr></table>";
         echo $tbl;
     } else {
-        if ($game->get_state() === "GAMEOVER") {
+        if ($game->gameover()) {
             echo "<p><font color='#FF0000'>Game Over</font></p>";
         } else {
             echo "<p><font color='#27AE60'>Winner!</font></p>";
         }
+        $game->update_score();
         echo "<p><a href='?user=$user'><small>New Game</small></a></p>";
     }
     echo "<p>";
-    if (($hof)||($game->get_state() !== "INPROGRESS")) {
+    if (($hof)||($game->inprogress())) {
         $rows = $game->get_hall_of_fame();
         if ($rows) {
             $tbl = "<table border='1' cellpadding='5'>";
@@ -82,7 +83,7 @@ Username: <input type="text" name="user"><input type="submit" value="Play">
 </body>
 </html>
 <?php if ($user) {
-    if ($game->get_state() === "INPROGRESS") { ?>
+    if ($game->inprogress()) { ?>
 <!-- <?php echo $user ?>! are you trying to cheat!? did you expect to see the word in the page source? nope nothing here! come now ... you still have <?php echo $game->get_remaining_guesses(); echo (($game->get_remaining_guesses() == 1) ? " guess" : " guesses"); ?> left. //-->
 <?php } else {
     $game->new_game();

@@ -78,6 +78,7 @@ class Hangman {
     }
 
     function get_hall_of_fame() {
+        $this->store_user();
         $sql = "SELECT username, games, won FROM players WHERE won > 0 ORDER BY ((won/games)*100)*games desc";
         $result = $this->conn->query($sql);
         if ($result->num_rows > 0) {
@@ -104,14 +105,6 @@ class Hangman {
     function get_word() {
         $word = $this->user["word"];
         return ($word) ? $word : "";
-    }
-
-    function do_guess($guess) {
-        $guess = strtoupper($guess);
-        $current = $this->get_guesses();
-        if(strpos($current, $guess) === false) {
-            $this->user["letters"] = $current.$guess;
-        }
     }
 
     function is_letter_in_word($letter) {
@@ -175,21 +168,42 @@ class Hangman {
         return "INPROGRESS";
     }
 
-    function new_game() {
+    function inprogress() {
+        return ($this->get_state() === "INPROGRESS");
+    }
+
+    function won() {
+        return ($this->get_state() === "WON");
+    }
+
+    function gameover() {
+        return ($this->get_state() === "GAMEOVER");
+    }
+
+    function update_score() {
         $games = $this->user["games"]+1;
-        $won = $this->user["won"] + ($this->get_state() === "WON" ? 1 : 0 );
-        $guesses = "";
-        $ts = time();
-        $word = $this->get_new_word();
+        $won = $this->user["won"] + ($this->won() ? 1 : 0);
         $this->user["games"] = $games;
         $this->user["won"] = $won;
+    }
+
+    function new_game() {
+        $guesses = "";
+        $word = $this->get_new_word();
         $this->user["letters"] = $guesses;
-        $this->user["ts"] = $ts;
         $this->user["word"] = $word;
     }
 
+    function do_guess($guess) {
+        $guess = strtoupper($guess);
+        $current = $this->get_guesses();
+        if(strpos($current, $guess) === false) {
+            $this->user["letters"] = $current.$guess;
+        }
+    }
+
     function get_hangman() {
-        if ($this->get_state() === "WON") {
+        if ($this->won()) {
 return "+-----+
 |/    |
 |
@@ -198,7 +212,7 @@ return "+-----+
 |        |
 |       / \
 +===========";
-        } elseif ($this->get_state() === "GAMEOVER") {
+        } elseif ($this->gameover()) {
 return "+-----+
 |/    |
 |     O
