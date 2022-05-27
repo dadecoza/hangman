@@ -84,9 +84,16 @@ Username: <input type="text" name="user"><input type="submit" value="Play">
 <?php } ?>
 </body>
 </html>
-<?php if ($user) {
-    if ($game->inprogress()) { ?>
-<!-- <?php echo $user ?>! are you trying to cheat!? did you expect to see the word in the page source? nope nothing here! come now ... you still have <?php echo $game->get_remaining_guesses(); echo (($game->get_remaining_guesses() == 1) ? " guess" : " guesses"); ?> left. //-->
-<?php } else {
-    $game->new_game();
-}} ?>
+<?php
+if ($user) {
+    if ($game->inprogress()) {
+        $remaining = $game->get_remaining_guesses();
+        $final = ($game->get_remaining_guesses() == 1);
+        $hint = $game->get_hint();
+        $str = ($final) ? "but fine, since this is your last chance I will give you a hint '$hint'." : "nope nothing here! come now ... you still have $remaining guesses left.";
+        echo "<!-- $user! are you trying to cheat!? did you expect to see the word in the page source? $str //-->\n";
+    } else {
+        $game->new_game();
+    }
+}
+?>

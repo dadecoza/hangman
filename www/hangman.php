@@ -144,6 +144,17 @@ class Hangman {
         return true;
     }
 
+    function get_hint() {
+        $word = $this->get_word();
+        for ($i = 0; $i < strlen($word); $i++) {
+            $c = substr($word, $i, 1);
+            if(!$this->is_letter_guessed($c)) {
+                return $c;
+            }
+        }
+        return "";
+    }
+
     function get_remaining_guesses() {
         return $this->allowed_guesses() - $this->get_incorrect_guesses();
     }
